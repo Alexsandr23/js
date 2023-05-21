@@ -17,13 +17,13 @@ alert("Ви народилсь " + yearOfBirth + " року!");
 // temperature Fahrenheit
 
 let degreesCelsius = prompt("Введіть значення у градусах Целсія: ");
-let degreesFahrenheit = Math.ceil(degreesCelsius * 1.8 + 32);
+let degreesFahrenheit = Math.round(degreesCelsius * 1.8 + 32);
 alert("У градусах Фаренгейта буде дорувнюваті: " + degreesFahrenheit + " F");
 
 // temperature Celsius
 
 let tempFahrenheit = prompt("Введіть значення у градусах Фаренгейтах: ");
-let tempCelsius = Math.ceil((tempFahrenheit - 32) / 1.8);
+let tempCelsius = Math.round((tempFahrenheit - 32) / 1.8);
 alert("У градусах Целсія буде дорувнюваті: " + tempCelsius + " C");
 
 // divide
