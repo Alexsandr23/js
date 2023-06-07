@@ -260,7 +260,7 @@ fetch('https://open.er-api.com/v6/latest/USD').then(res => res.json())
         str += `<label>${key}<input type = ${type} ${checked} value = ${value}></label>`
     }
 
-    str += "</form>"
+    str += "</form>";
     document.write(str)
 }
 
