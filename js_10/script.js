@@ -47,7 +47,8 @@ function bracketsCheck (line) {
 }
 
 // Form
-    const car = {
+{
+        const car = {
         "Name":"chevrolet chevelle malibu",
         "Cylinders":8,
         "Displacement":307,
@@ -57,31 +58,33 @@ function bracketsCheck (line) {
         "in_production": false
     } 
 
-function madeForm (obj) {
+    function madeForm (obj) {
 
-    let str ="<form>";
-    for(const [key,value] of Object.entries(car)) {
-        let type;
-        let checked;
-        if(typeof value === "number" ){
-            type = "number";
-        } else if (typeof value === "string" ) {
-            type = "text";
-        } else if (typeof value === "boolean" ) {
-            type = "checkbox";
-            if(value) {
-                checked = "checked";
+        let str ="<form>";
+        for(const [key,value] of Object.entries(car)) {
+            let type;
+            let checked;
+            if(typeof value === "number" ){
+                type = "number";
+            } else if (typeof value === "string" ) {
+                type = "text";
+            } else if (typeof value === "boolean" ) {
+                type = "checkbox";
+                if(value) {
+                    checked = "checked";
+                }
+                
             }
-            
+            str += `<label>${key}<input type = ${type} ${checked} value = ${value}></label>`
         }
-        str += `<label>${key}<input type = ${type} ${checked} value = ${value}></label>`
-    }
 
-    str += "</form>";
-    return document.write(str)
+        str += "</form>";
+        return document.write(str)
+    }
 }
 
-// // chess
+
+// chess
 function chessBoard (row,column) {
     let strChess = ""
     for (i = 1; i <= row; i++) {
@@ -119,7 +122,7 @@ console.log(chessBoard(20,15))
 
 
 // createPersonClosure 
-{
+
     const createPersonClosure = (name,surname) => {
         let fatherName,age
         const getName = () => name
@@ -128,14 +131,30 @@ console.log(chessBoard(20,15))
         const getAge = () => age
         const getFullName = () => (name ? name : "") + (fatherName ? " " + fatherName : "") + (surname ? " " + surname : "")
         
-        const setName = (newName) => name = newName
-        const setSurname = (newSurname) => surname = newSurname
-        const setFatherName = (newFatherName) => fatherName = newFatherName
-        const setAge = (newAge) => {
-            if (checkNewAge(newAge)) age = newAge
-            function checkNewAge (newAge) {
-                return typeof newAge === "number" && newAge >= 0 && newAge <= 100 
+        const setName = (newName) => {
+            if (newName && typeof newName === "string") {
+                 name = newName
             }
+           return name
+        } 
+        const setSurname = (newSurname) => {
+            if (newSurname && typeof newSurname === "string") {
+                surname = newSurname
+            }
+           return surname
+        } 
+        const setFatherName = (newFatherName) => {
+            if (newFatherName && typeof newFatherName === "string") {
+                fatherName = newFatherName
+            }
+           return fatherName
+        } 
+        const setAge = (newAge) => {
+            newAge = +newAge
+            if (newAge && newAge >= 0 && newAge <= 100 ) {
+                age = newAge
+            }
+            return age
         } 
         const setFullName = (value) => { 
             const arr = value.trim().split(" ")
@@ -164,19 +183,19 @@ console.log(chessBoard(20,15))
         }
     }
     
-    const a = createPersonClosure("Вася", "Пупкін")
-    console.log(a)
-    const b = createPersonClosure("Ганна", "Іванова")
-    console.log(a.getName())
-    console.log(a.getFullName())
-    a.setAge(15)
-    a.setAge(150)
-    console.log(a.getAge())
-    b.setFullName("Петрова Ганна Миколаївна")
-    console.log(b.getFatherName()) 
-}
+    // const a = createPersonClosure("Вася", "Пупкін")
+    // console.log(a)
+    // const b2 = createPersonClosure("Ганна", "Іванова")
+    // console.log(a.getName())
+    // console.log(a.getFullName())
+    // a.setAge(15)
+    // a.setAge(150)
+    // console.log(a.getAge())
+    // b2.setFullName("Петрова Ганна Миколаївна")
+    // console.log(b2.getFatherName()) 
 
-// createPersonClosureDestruct
+
+// // createPersonClosureDestruct
 
 function createPersonClosureDestruct ({name = "не вказано", surname = "не вказано", fatherName = "не вказано", age = 0, getName, getSurname, getFatherName, getAge, getFullName, setName, setSurname, setFatherName, setAge,setFullName}={}) {
     return {
@@ -196,12 +215,12 @@ function createPersonClosureDestruct ({name = "не вказано", surname = "
         setFullName
     }
 }
-const a1 = createPersonClosureDestruct(createPersonClosure("Вася Пупкін"))
-console.log(a1)
-const b1 = createPersonClosureDestruct({name: 'Миколай', age: 75})
-console.log(b1)
+// const a1 = createPersonClosureDestruct(createPersonClosure("Вася Пупкін"))
+// console.log(a1)
+// const b1 = createPersonClosureDestruct({name: 'Миколай', age: 75})
+// console.log(b1)
 
-// isSorted
+// // isSorted
   const isSorted = (...params) => {
     for (let i = 0; i < params.length; i++) {
         if (params[i] > params[i + 1] || typeof params[i] !== "number") {
@@ -211,13 +230,13 @@ console.log(b1)
     return true
   }
 
-  console.log(isSorted(1,2,3,4,5,6))
-  console.log(isSorted(1,2,3,8,5,6))
-  console.log(isSorted(2,3,4,5,6,"we"))
-  console.log(isSorted())
+//   console.log(isSorted(1,2,3,4,5,6))
+//   console.log(isSorted(1,2,3,8,5,6))
+//   console.log(isSorted(2,3,4,5,6,"we"))
+//   console.log(isSorted())
   
 
-// //   Test isSorted
+// // //   Test isSorted
 
 const isSortedTest = () => {
     const params = []
@@ -234,12 +253,12 @@ const isSortedTest = () => {
     return true
   }
 
-  console.log(isSortedTest())
+//   console.log(isSortedTest())
 
 // personForm
-const b = createPersonClosure("Ганна", "Іванова")
-b.setAge(15)
-b.setFullName("Петрова Ганна Миколаївна")
+// const b = createPersonClosure("Ганна", "Іванова")
+// b.setAge(15)
+// b.setFullName("Петрова Ганна Миколаївна")
 
 function personForm (perent,person) {
     const inputName = document.createElement("input")
@@ -283,4 +302,98 @@ function personForm (perent,person) {
     
 }
 
-personForm(document.body,b)
+// personForm(document.body,b)
+
+// getSetForm
+let car
+{
+    let brand = 'BMW', model = 'X5', volume = 2.4
+    car = {
+        getBrand(){
+            return brand
+        },
+        setBrand(newBrand){
+            if (newBrand && typeof newBrand === 'string'){
+                brand = newBrand
+            }
+            return brand
+        },
+        
+        getModel(){
+            return model
+        },
+        setModel(newModel){
+            if (newModel && typeof newModel === 'string'){
+                model = newModel
+            }
+            return model
+        },
+        
+        getVolume(){
+            return volume
+        },
+        setVolume(newVolume){
+            newVolume = +newVolume
+            if (newVolume && newVolume > 0 && newVolume < 20){
+                volume = newVolume
+            }
+            return volume
+        },
+        
+        getTax(){
+            return volume * 100
+        }
+    }
+}
+
+function getSetForm(parent, getSet){
+    const inputs = {} //реєстр
+    console.log(inputs)
+    
+    const updateInputs = () => { 
+        for ( const key in inputs) {
+            const getValue = getSet["get" + key] // получаю метод get
+            if (typeof getValue === "function") { // проверка 
+                const input = inputs[key]
+                const value = getValue() // получаю значение 
+                input.value = value !== undefined ? value : "" // добавляю значение + провека 
+
+                if (typeof value === "number") {
+                    input.type = "number"
+                } else {
+                    input.type = "text"
+                }
+            }
+        }
+    }
+    
+    for (const getSetName in getSet){
+        const fieldName = getSetName.slice(3)
+        const setKey    = `set` + fieldName
+        
+        if (typeof getSet[getSetName] === "function") {
+            const input = document.createElement('input')
+            input.placeholder = fieldName
+            
+            input.addEventListener("input", () => {
+                const setValue = getSet[setKey] // получаю метод set
+                if (typeof setValue === "function") {
+                    setValue(input.value) // установка значения 
+                    updateInputs() // обновление поля вводв
+                }
+            })
+            if (!getSet[setKey]) {
+                input.disabled = true
+            }
+
+            inputs[fieldName] = input
+            
+            parent.append(input)
+        }
+    }
+    updateInputs()
+}
+
+
+getSetForm(document.body, createPersonClosure('Анон', "Анонов"))
+getSetForm(document.body, car)
