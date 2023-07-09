@@ -55,18 +55,19 @@ alert(`Слухай, ${nameSaver()}, го пити пиво. Адже prompt б�
 
 // myBind
 function myBind (func,obj,arr) {
-        return function (...value) {
-                let copyArr = arr.slice()
-                let valueIndex = 0;
-                for (let i = 0; i < copyArr.length; i++) {
-                    if (copyArr[i] === undefined) {
-                        copyArr[i] = value[valueIndex]; 
-                        valueIndex++; 
-                    }
+    return function (...value) {
+            let copyArr = arr.slice()
+            let valueIndex = 0;
+            for (let i = 0; i < copyArr.length; i++) {
+                if (copyArr[i] === undefined) {
+                    copyArr[i] = value[valueIndex]; 
+                    valueIndex++; 
                 }
-                return func.bind(obj,...copyArr)()
-            }       
-    }
+            }
+            copyArr = copyArr.concat(value.slice(valueIndex))
+            return func.call(obj,...copyArr)
+        }       
+}
 
 
 
@@ -105,7 +106,7 @@ function checkResult(original, validator){
         let result
         do {
             result = original.call(this,...params)
-        } while (result === " " || result === null || !validator(result))
+        } while (!validator(result))
         return result
     }
     return wrapper
