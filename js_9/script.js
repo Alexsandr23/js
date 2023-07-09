@@ -112,7 +112,6 @@ const readArrayOfObjects = () => {
     
     while (true) {
         const obj = {}
-        let input = true
         while(input) {
             const key = prompt("Введіть ключ")
             if (key === null) {
@@ -204,30 +203,33 @@ for (i = 1; i <= 9; i++) {
 {
     const table = document.createElement("table")
     document.body.prepend(table)
-    for (i = 1; i <= 9; i++) {
+
+    for (let i = 1; i <= 9; i++) {
         const tr = document.createElement("tr")
         table.append(tr)
-        for (j = 1; j <= 9; j++) {
+
+        for (let j = 1; j <= 9; j++) {
             const td = document.createElement("td")
             
             td.style.padding = "5px"
             td.style.border = "solid 1px black"
             td.innerText = i * j
-            const closure = (elem,cellIndex) => {
-                elem.addEventListener("mouseover", () => {
-                    tr.style.backgroundColor = "red"
+            
+            td.addEventListener("mouseover", () => {
+                tr.style.backgroundColor = "red"
+                for(let n = 0; n < table.rows.length; n++) {
+                    table.rows[n].cells[j - 1].style.backgroundColor = "red"
+                }
+            })
+            
+            td.addEventListener("mouseout", () => {
+                tr.style.backgroundColor = ""
                     for(let n = 0; n < table.rows.length; n++) {
-                        table.rows[n].cells[cellIndex].style.backgroundColor = "red"
-                    }
-                })
-                elem.addEventListener("mouseout", () => {
-                    tr.style.backgroundColor = ""
-                    for(let n = 0; n < table.rows.length; n++) {
-                        table.rows[n].cells[cellIndex].style.backgroundColor = ""
-                    }
-                })
-            }
-            closure(td,j-1)
+                        table.rows[n].cells[j-1].style.backgroundColor = ""
+                }
+            })
+            
+            
             tr.append(td) 
         }
     }
