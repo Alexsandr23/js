@@ -21,20 +21,20 @@ function jsonPost(url,data) { // не получичается переписа�
     return fetch(url, {
         method: "POST",
         headers: {
-            "Content-Type": 'application/json',  
+            "Content-Type": "application/json",
+            Accept: "application/json"
         },
         body: JSON.stringify(data)
     })
-    .then (response => {
+    .then (response => { 
         if (!response.ok) {
-            return new Error('status is not 200')
-        } else {
-            return response.json()
-        }
+            throw new Error(`HTTP error! Status: ${response.status}`)
+        } 
+        return response.json()
     })
 }
 
-let nextMessageId = 0;
+let nextMessageId = 0
 const nick = document.getElementById('nickInput')
 const message = document.getElementById('messageInput')
 
@@ -44,7 +44,7 @@ async function sendMessage(nick,message) {
 }
 
 async function getMessages () {
-    const response = await jsonPost("http://students.a-level.com.ua:10012",{func: "getMessages", messageId: 0})
+    const response = await jsonPost("http://students.a-level.com.ua:10012",{func: "getMessages", messageId: nextMessageId})
     const messages = response.data
     const chatContainer = document.getElementById('chatContainer')
     
@@ -66,17 +66,13 @@ async function sendAndCheck() {
 async function checkLoop() {
     while (true) {
         await getMessages()
-        await delay(5000)
+        await new Promise(resolve => setInterval(resolve, 5000))
     }
 }
 
-function delay(ms) {
-    return new Promise(resolve => setInterval(resolve, ms))
-}
 const btn = document.getElementById("btnSend")
 btn.onclick = () => {
     sendAndCheck()
-
     nick.value = ""
     message.value = ""
 
@@ -121,7 +117,7 @@ function domEventPromise(element, eventName){
     function executor(resolve){
         function handler (event) {
             resolve(event)
-            element.removeEventListener(eventName, handler)
+            element.removeEventListener(eventName, handler)            
         }
         element.addEventListener(eventName, handler)
 
@@ -130,6 +126,9 @@ function domEventPromise(element, eventName){
 }
 
 const knopka = document.getElementById("knopka")
-domEventPromise(knopka, 'click').then( e => console.log('event click happens', e))
-
-
+;(async () => {
+    while (true) {
+      const event = await domEventPromise(knopka, 'click')
+      console.log('event click happens', event)
+    }
+  })()
