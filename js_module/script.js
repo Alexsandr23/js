@@ -104,7 +104,7 @@ function authReducer(state={}, {type, token}){
             return {
                 ...state,
                 token,
-                payload
+                payload,
             }
         } else if (type === 'AUTH_LOGOUT') {
             return {}
@@ -227,19 +227,19 @@ const gqlGoodOne = (_id) => gql (
 const actionGoodOne = (_id) => actionPromise("goodOne", gqlGoodOne(_id))
 
 // запрос на реестрацию 
-const gqlUserRegistration = (login, password) => gql (
-    `mutation reg($login:String, $password: String) {
-        UserUpsert(user:{login:$login, password:$password}) {
-          _id createdAt login
+const gqlUserRegistration = (login, password, nick) => gql (
+    `mutation reg($login:String, $password:String, $nick:String) {
+        UserUpsert(user:{login:$login, password:$password, nick:$nick}) {
+          _id createdAt login nick
         }
-        }`, {login, password}
+        }`, {login, password, nick}
 )
-const actionUserRegistration = (login, password) => actionPromise("userRegistration", gqlUserRegistration(login, password))
+const actionUserRegistration = (login, password, nick) => actionPromise("userRegistration", gqlUserRegistration(login, password, nick))
 
-const actionFullRegister = (login, password) =>
+const actionFullRegister = (login, password, nick) =>
     async dispatch => {
         try {
-            const result = await dispatch(actionUserRegistration(login, password))
+            const result = await dispatch(actionUserRegistration(login, password, nick))
             if(result) {
                 const token = await dispatch(actionLogin(login, password))
                 if (typeof token === 'string') {
@@ -395,7 +395,7 @@ store.subscribe(() => {
     
 })
 
-// товары
+// cats
 store.subscribe(() => {
     const [,route] = location.hash.split('/')
     if (route !== 'category') return
@@ -406,16 +406,32 @@ store.subscribe(() => {
     }
 
     if (status === 'FULFILLED'){
+        main.innerHTML = ""
         const {name, goods, parent, subCategories} = payload
-        let content = ""
-        if(parent) {
+
+        const title = document.createElement("div")
+        title.style.display = "flex"
+        title.style.fontSize = "15px"
+        title.style.alignItems = "center"
+        title.style.gap = "5px"
+        main.append(title)
+        
+        if (parent) {
             const {name, _id} = parent
-            content += `<a href="#/category/${_id}">${name}</a>`
+            const parentLink = document.createElement("a")
+            parentLink.href = `#/category/${_id}`
+            parentLink.innerText = `${name} /`
+            title.append(parentLink)
         }
-        content += `<h1>${name}</h1>`
+        const nameCats = document.createElement("h1")
+        nameCats.innerText = `${name} /`
+        title.append(nameCats)
         if(subCategories) {
             for (const {_id, name} of subCategories){
-                content += `<a href="#/category/${_id}">${name}</a><br>`
+                const subCatLink = document.createElement("a")
+                subCatLink.href = `#/category/${_id}`
+                subCatLink.innerText = `${name} /`
+                title.append(subCatLink)
             }
         }
 
@@ -433,24 +449,45 @@ store.subscribe(() => {
                 const goodsCards = document.createElement("div")
                 goodsCards.style = `
                     width: 300px;
-                    height: 600px;   
-                    border: 2px solid black;
+                    height: 500px;   
+                    border: 1px solid black;
                     display: flex;
                     flex-direction: column;
-                    justify-content: space-between;
+                    justify-content: space-around;
                     align-items: center;
                     padding: 5px;
+                    text-align: center;
+                    
                 `
-                const [data] = images// нужно ли 2 картинки 
+                const [data] = images
+
+                const img = document.createElement("img")
+                img.src = `http://shop-roles.node.ed.asmer.org.ua/${data.url}`
+                img.style = `
+                    width: 300px; 
+                    height: 350px;
+                    overflow: hidden;
+                `
+                link.append(img)
+                goodsCards.append(link)
                 
-                goodsCards.innerHTML = `<img src="http://shop-roles.node.ed.asmer.org.ua/${data.url}" style = "width: 100%; height: 100%; flex-grow: 1; object-fit: cover;"/>`
-                goodsCards.innerHTML += `<p>${name}</p>`
-                goodsCards.innerHTML += `<p>Ціна: ${price}</p>`
-                link.append(goodsCards)
-                boxGood.append(link)     
+                const goodName = document.createElement("p")
+                goodName.style.flexShrink = "0"
+                goodName.innerHTML = `${name}`
+                goodsCards.append(goodName)
+
+                const priceGood = document.createElement("p")
+                priceGood.innerText = `Ціна: ${price} грн.`
+                goodsCards.append(priceGood)
+
+                const btnBuyCard = document.createElement("button")
+                btnBuyCard.innerText = "Купити"
+                btnBuyCard.addEventListener("click", () => buyGoodOfCard(`${_id}`))
+                goodsCards.append(btnBuyCard)
+
+                boxGood.append(goodsCards)     
             }
         }
-        main.innerHTML = content
         main.append(boxGood)
     }   
 })
@@ -465,30 +502,62 @@ store.subscribe(() => {
         
     }
     if (status === 'FULFILLED') {
+        main.innerHTML = ""
+        const title = document.createElement("div")
+        title.style.display = "flex"
+        title.style.fontSize = "15px"
+        title.style.gap = "5px"
+        main.append(title)
 
         const {categories, name, images, description, price} = payload
-        let content = ""
 
         if (categories) {
             const [data] = categories
-            content += `<a href="#/category/${data._id}"><h1>${data.name}</h1></a>`
+            const linkCat = document.createElement("a")
+            linkCat.href = `#/category/${data._id}`
+
+            const nameCat = document.createElement("p")
+            nameCat.style.fontWeight = "900"
+            nameCat.innerText = `${data.name}  /`
+            linkCat.append(nameCat)
+            title.append(linkCat)
+            
         }
         if (name){
-            content += `<h3>${name}</h3>`
+            const nameGood = document.createElement("p")
+            nameGood.innerText = `  ${name}`
+            title.append(nameGood)
+            const nameGoodTitle = document.createElement("p")
+            nameGoodTitle.style.fontSize = "40px"
+            nameGoodTitle.style.fontWeight = "900"
+            nameGoodTitle.innerText = `${name}`
+            main.append(nameGoodTitle)
         }
         if(images) {
+            const arrImg = []
             for(const data of images) {
-                content += `<img src="http://shop-roles.node.ed.asmer.org.ua/${data.url}" style = "width: 300px; height: 500px;"/>`
+                arrImg.push(`${data.url}`)
             } 
+            createSlider(arrImg,main)
         }
         if(description) {
-            content += `<p>${description}</p>`
+            const descriptionText = document.createElement("p")
+            descriptionText.style.fontSize = "20px"
+            descriptionText.innerHTML = `${description}`
+            descriptionText.style.padding = "30px 0"
+            main.append(descriptionText)
         }
         if(price) {
-            content+= `<p>Ціна: ${price}</p>`
+            const priceElem = document.createElement("p")
+            priceElem.style.fontSize = "25px"
+            priceElem.style.fontWeight= "900"
+            priceElem.innerText = `Ціна: ${price} грн.`
+            main.append(priceElem)
         }
-        content += `<button onclick = "clickOnBuy ()">Купити</button>`
-        main.innerHTML = content
+        const btnBuy = document.createElement("button")
+        btnBuy.innerText = "Купити"
+        btnBuy.addEventListener("click", clickOnBuy)
+        main.append(btnBuy)        
     }
 })
 
@@ -511,6 +580,14 @@ store.subscribe(() => {
     }
 })
 store.subscribe(() => {
+    const {status, payload, error} = store.getState().promise.userRegistration || {}
+    if (status === 'FULFILLED') { 
+        if (payload) {
+            main.innerHTML = `<p>Ви успішно війшли в свій акаунт</p>`
+        }  
+        
+    }
+
     const statusAuth = store.getState().auth
     const btnLogin = document.getElementById("btnLogin")
     const btnLogout = document.getElementById("btnLogout")
@@ -622,6 +699,10 @@ window.onhashchange = () => {
             main.innerHTML = ""
 
             function Password (parent, open) {
+
+                const titleLogin = document.createElement("h1")
+                titleLogin.innerText = "Вхід"
+                main.append(titleLogin)
     
                 const inputPassword = document.createElement("input")
                 const labelPassword = document.createElement("label")
@@ -681,6 +762,7 @@ window.onhashchange = () => {
                 const brLogin = document.createElement("br")
                 labelLogin.innerText = "Логін: "
                 inputLogin.id = "inputLogin"
+                inputLogin.style.margin = "15px 0"
                 inputLogin.type = "text"
                 parent.append(labelLogin)
                 parent.append(inputLogin)
@@ -722,13 +804,13 @@ window.onhashchange = () => {
             }
 
             const loginForm = document.createElement("form")
-            loginForm.style = "padding: 30px 20px"
+            loginForm.style = "padding: 20px"
             const newForm = new LoginForm(loginForm)
             main.append(loginForm)
             const linkReg = document.createElement("a")
             linkReg.id = "btnReg"
             linkReg.href = "#/register/"
-            linkReg.innerText = "Register"
+            linkReg.innerText = "Зареєструватись"
             main.append(linkReg)
             
         },
@@ -740,6 +822,7 @@ window.onhashchange = () => {
                 const inputPassword = document.createElement("input")
                 const labelPassword = document.createElement("label")
                 labelPassword.innerText = "Пароль: "
+                inputPassword.style.marginBottom = "5px"
                 inputPassword.id = "inputPassword"
                 inputPassword.type = open ? "text" : "password"
                 parent.append(labelPassword)
@@ -795,14 +878,28 @@ window.onhashchange = () => {
                 const brLogin = document.createElement("br")
                 labelLogin.innerText = "Логін: "
                 inputLogin.id = "inputLogin"
+                inputLogin.style.marginTop = "5px"
                 inputLogin.type = "text"
                 parent.append(labelLogin)
                 parent.append(inputLogin)
                 parent.append(brLogin)
+
+                
+                const labelNick = document.createElement("label")
+                labelNick.innerHTML = "Нікнейм: "
+                parent.append(labelNick)
+                const inputNick = document.createElement("input")
+                inputNick.type = "text"
+                inputNick.id = "inputNick"
+                inputNick.style.marginTop = "10px"
+                parent.append(inputNick)
+                const brNick = document.createElement("br")
+                parent.append(brNick)
                 
                 
                 const btnForm = document.createElement("button")
                 btnForm.innerText = "Війти"
+                btnForm.style.margin = "20px 0"
                 btnForm.id = "btnForm"
                 btnForm.type = "submit"
                 btnForm.addEventListener("click", clickOnReg)
@@ -838,7 +935,11 @@ window.onhashchange = () => {
 
             function PasswordVerify (parent) {
                 const form = document.createElement("form")
+                const titleForm = document.createElement("h1")
+                titleForm.innerText = "Реєстрація"
+                parent.append(titleForm)
                 parent.append(form)
+                form.style.padding = "20px"
 
                 const loginForm = new LoginForm(form)
 
@@ -847,9 +948,13 @@ window.onhashchange = () => {
                 inputCheck.type = "text"
                 
                 const password = loginForm.password()
+                password.onChange = () => {
+                    comparePasswords(password, inputCheck)
+                }
                 
                 password.onOpenChange = function () {
-                createInputChecked(password, inputCheck, form)
+                    createInputChecked(password, inputCheck, form)
+                    comparePasswords(password, inputCheck)
                 }
 
                 inputCheck.oninput =  () => {
@@ -881,7 +986,7 @@ function createdCountAll(statusCart) {
     const cartCount = document.getElementById("cartCount")
         let countAll = 0
         for (const key in statusCart) {
-            countAll += statusCart[key].count
+            countAll += Number(statusCart[key].count)
         }
         elem.innerText = `${countAll}`
 }
@@ -896,11 +1001,12 @@ function creatPageCart (cartState, parent) {
     if(Object.keys(cartState).length === 0) {
         main.innerHTML += `<p>Кошик порожній</p>`
     } else {
+        let priceCount = 0
         for(const key in cartState) {
             const {count,good} = cartState[key]
             const {name, price,images} = good.payload
             const url = images[0].url
-            
+            priceCount += Number(`${count * price}`)
 
             const divBoxGood = document.createElement("div")
             divBoxGood.style.display = "flex"
@@ -949,18 +1055,23 @@ function creatPageCart (cartState, parent) {
             parent.append(divBoxGood)
         }
         const priceAll = document.createElement("p")
-        priceAll.innerText = "Сума замовлення: "
-        const sum = document.createElement("strong")
+        priceAll.innerText = `Сума замовлення: ${priceCount} грн.`
+        priceAll.style.fontWeight = "900"
+        parent.append(priceAll)
 
         const btnClear = document.createElement("button")
         btnClear.innerHTML = "Очистити корзину"
+        btnClear.style.margin = "20px 0"
         btnClear.addEventListener("click", clearCart)
         parent.append(btnClear)
         const btnOrder = document.createElement("button")
         btnOrder.innerHTML = "Оформити замовлення"
+        btnOrder.style.margin = "0 30px"
         btnOrder.addEventListener("click", placeOrder)
         parent.append(btnOrder)
     }
+    const br = document.createElement("br")
+    main.append(br)
     const historyLink = document.createElement("a")
     historyLink.innerText = "Історія замовлень"
     historyLink.href = "#/history/"
@@ -968,9 +1079,17 @@ function creatPageCart (cartState, parent) {
     
 }
 
+async function buyGoodOfCard (goodId) {
+    await store.dispatch(actionGoodOne(goodId))
+    const {status, payload, error} = store.getState().promise.goodOne || {}
+
+    if (status === 'FULFILLED') {
+        store.dispatch(actionCartAdd({_id: goodId,payload}))   
+    } 
+}
+
 function clickOnBuy () {
     const [,route, _id] = location.hash.split('/')
-    
     const {status, payload, error} = store.getState().promise.goodOne || {}
     if (status === 'FULFILLED') {
         store.dispatch(actionCartAdd({_id,payload}))   
@@ -1044,13 +1163,16 @@ function loginOnClick () {
 function clickOnReg () {
     const loginInput = document.getElementById("inputLogin")
     const passwordInput = document.getElementById("inputPassword")
+    const nickInput = document.getElementById("inputNick")
     const login = loginInput.value
     const password = passwordInput.value
-    console.log(login,password)
-    store.dispatch(actionFullRegister(login, password))
+    const nick = nickInput.value
+    console.log(login,password, nick)
+    store.dispatch(actionFullRegister(login, password, nick))
 
     loginInput.value = ""
     passwordInput.value = ""
+    nickInput.value = ""
 }
 
 //-----------
@@ -1100,7 +1222,7 @@ const comparePasswords = (password, inputCheck) => {
     } else if ( passwordValue !== confirmPasswordValue && !password.getOpen()) {
         password.setStyle({border: "solid red"})
         inputCheck.style.border = "solid red"
-    } else if (!password.getOpen()) {
+    } else if (!password.getOpen() || passwordValue === confirmPasswordValue) {
         password.setStyle({border: "solid green"})
         inputCheck.style.border = "solid green"
     }
@@ -1114,4 +1236,60 @@ function createInputChecked(password, inputCheck, form) {
     } else {
         form.children[2].insertAdjacentElement("afterend", inputCheck)
     }
+}
+
+
+// slider
+function createSlider (arrImg, parent) {
+    const sliderContainer = document.createElement("div")
+    sliderContainer.style = `
+    box-shadow: rgba(0, 0, 0, 0.24) 0px 3px 8px;
+    padding: 15px;
+    `
+    sliderContainer.style.position = "relative"
+    sliderContainer.style.width = "600px"
+    sliderContainer.style.height = "500px"
+    parent.append(sliderContainer)
+
+    const sliderImg = document.createElement("img")
+    sliderImg.style.width = "100%"
+    sliderImg.style.height = "100%"
+    sliderContainer.append(sliderImg)
+
+    let currentImgIndex = 0
+
+    function chancheImg (index) {
+        if (index >= 0 && index < arrImg.length) {
+            sliderImg.src = `http://shop-roles.node.ed.asmer.org.ua/${arrImg[index]}`
+            currentImgIndex = index
+        }
+    }
+
+    chancheImg(currentImgIndex)
+     
+    const prevBtn = document.createElement("button")
+    prevBtn.innerHTML = "&#10094"
+    prevBtn.style = `
+        position: absolute;
+        left: 0px;
+        top: 50%;
+        transform: translate(-50%, -50%);
+        padding: 15px;
+    `
+    const nextBtn = document.createElement("button")
+    nextBtn.innerHTML = "&#10095"
+    nextBtn.style = `
+        position: absolute;
+        right: 0px;
+        top: 50%;
+        transform: translate(50%, -50%);
+        padding: 15px;
+    `
+
+    prevBtn.addEventListener("click", () => chancheImg(currentImgIndex - 1))
+    nextBtn.addEventListener("click", () => chancheImg(currentImgIndex + 1))
+
+    sliderContainer.append(prevBtn)
+    sliderContainer.append(nextBtn)
+
 }

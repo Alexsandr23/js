@@ -5,9 +5,16 @@ header {
     min-height: 60px;
     background-color: gray;
     display: flex;
+    align-items: center;
 }
-#btnLogin, #btnBasket {
-    padding: 0 15px;
+#btnLogin { 
+    text-decoration: none;
+    padding: 15px;
+    margin: 10px;
+    background-color: rgb(237, 231, 231);
+    color: black;
+    border-radius: 5px;
+   box-shadow: rgba(0, 0, 0, 0.24) 0px 3px 8px;
 }
 #containerMain {
     display: flex;
